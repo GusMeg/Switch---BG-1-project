@@ -2,6 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { Contract } from "ethers";
 
+
 /**
  * Deploys a contract named "YourContract" using the deployer account and
  * constructor arguments set to the deployer address
@@ -22,7 +23,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
-  await deploy("YourContract", {
+/* await deploy("AppWallet", {
     from: deployer,
     // Contract constructor arguments
     args: [deployer],
@@ -33,8 +34,44 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   });
 
   // Get the deployed contract to interact with it after deploying.
-  const yourContract = await hre.ethers.getContract<Contract>("YourContract", deployer);
-  console.log("👋 Initial greeting:", await yourContract.greeting());
+  const appWallet = await hre.ethers.getContract<Contract>("AppWallet",deployer);
+  const _addressAppWallet = await appWallet.getAddress();
+*/
+  await deploy("GetFunction",{
+    from: deployer,
+    args: [1995],
+    log: true,
+    autoMine: true,
+  });
+
+  const getFunction = await hre.ethers.getContract<Contract>("GetFunction", deployer);
+  const gFaddress = await getFunction.getAddress();
+
+  await deploy("FundManager", {
+    from: deployer,
+    // Contract constructor arguments
+    args: [gFaddress],
+    log: true,
+    // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
+    // automatically mining the contract deployment transaction. There is no effect on live networks.
+    autoMine: true,
+  });
+  await deploy("Testing", {
+    from: deployer,
+    // Contract constructor arguments
+    args: [],
+    log: true,
+    // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
+    // automatically mining the contract deployment transaction. There is no effect on live networks.
+    autoMine: true,
+  });
+  const fundManager = await hre.ethers.getContract<Contract>("FundManager", deployer);
+  //await fundManager.transferOwnership('0xf5df3bC7Ed9A94C6d27904AEB55aaE3b31fD7AC9');
+/*const _addressFundManager = await fundManager.getAddress();
+  await appWallet.transferOwnership(_addressFundManager);
+*/
+  //const yourContract = await hre.ethers.getContract<Contract>("YourContract", deployer);
+  //console.log("👋 Initial greeting:", await yourContract.greeting());
 };
 
 export default deployYourContract;
